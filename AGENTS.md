@@ -80,6 +80,22 @@ compatibility tests.
   - unknown scale names silently become Major;
   - a recording's `.asd` file changes how Live plays it.
 
+## Two kinds of TODOs: the tool vs. the user's songs
+
+Keep them apart. Before writing a task down, ask: would it still matter in a different Live set?
+
+| | Tool TODOs | Song TODOs |
+|---|---|---|
+| About | AbletonMCP itself: bugs, features, skills/prompts, docs, investigations | One Live set: parts to record, mix moves to try, arrangement ideas |
+| Where | `TODO.md` at the repo root | `agent/projects/<set name>/TODO.md` (`<set name>` = `live.song` from `get_session_overview`) |
+| In git? | yes | no (`agent/` is ignored) |
+| Example | "`analyzer install` reports no answer while Max is still loading" | "Sidechain the basses to the kick" |
+
+- Never put a song's tasks, track names or set name in `TODO.md`. When a song task reveals a tool
+  problem, write the tool problem in `TODO.md` in general terms and keep the song task in the song's file.
+- At the start of work on a set, read its `agent/projects/<set name>/TODO.md` if there is one. At the
+  end, update it: add what's still open, remove what's done.
+
 ## Repo hygiene
 
 - Never commit `agent/exports`, `agent/captures`, `agent/reports` (user audio and analyses), transcripts
@@ -92,6 +108,7 @@ compatibility tests.
   - `docs/decisions.md`: why
   - `docs/api-notes.md`: Live API facts
   - `docs/clients.md`: client setup and tool rules
-  - `TODO.md`: open tasks and investigations
+  - `TODO.md`: open tasks and investigations for the tool (song tasks: see above)
 - Record new design decisions in `docs/decisions.md` (context, decision, evidence).
-- No dated handoff files: open tasks live in `TODO.md`; remove an item once its outcome is recorded.
+- No dated handoff files: open tasks live in `TODO.md` (tool) or `agent/projects/<set name>/TODO.md`
+  (song); remove an item once its outcome is recorded.
