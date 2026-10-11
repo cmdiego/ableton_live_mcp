@@ -57,6 +57,11 @@ Device-specific classes exposed in `Live`: `Eq8Device`, `CompressorDevice`, `Roa
 - No insert/delete-time API. Moving material = `Track.duplicate_clip_to_arrangement(clip, time)` then
   `Track.delete_clip(clip)`; `create_midi_clip(start, length)` makes exact-length clips. Clips can't be
   split, so edits through a clip are refused. Track automation lanes don't move with clips.
+- **Trimming by overwrite (observed, Live 12.4):** `duplicate_clip_to_arrangement` onto a spot that
+  an existing clip covers makes Live cut that clip there; the part under the copy is replaced.
+  Copying a longer clip of the same track to beat `e` and then deleting the copy leaves the earlier
+  clip ending at `e`. Setting `end_marker` or calling `crop()` doesn't change an arrangement clip's
+  `end_time`.
 - Arrangement clip indexes shift as clips are added or removed, so the `arrangement_ops` handler
   addresses clips by (track, start time) and runs a whole edit as one undo step.
 - **Locators:** the only API is `Song.set_or_delete_cue()` at the playhead. A new `current_song_time`

@@ -8,3 +8,5 @@
   `…arrangement_review` and `…master_track`.
 - Personal memory lives outside the repo (`~/.claude/…`) and stays there. Project-level decisions go
   in `docs/decisions.md`.
+- Tasks go in one of the two TODO files from AGENTS.md ("Two kinds of TODOs"), never in memory: tool
+  tasks in `TODO.md`, tasks for the user's song in `agent/projects/<set name>/TODO.md`.

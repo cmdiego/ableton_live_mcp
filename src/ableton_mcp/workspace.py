@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SUBFOLDERS = ("exports", "references", "captures", "reports", "presets")
+SUBFOLDERS = ("exports", "references", "captures", "reports", "presets", "projects")
 
 
 def agent_dir() -> Path:

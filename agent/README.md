@@ -6,6 +6,7 @@
 | `references/` | Commercial reference tracks to compare against | no |
 | `captures/` | Master recordings from the Max for Live analyzer (Phase 11) | no |
 | `reports/` | Analysis and mastering-iteration reports (JSON) | no |
+| `projects/` | Notes per Live set, e.g. `projects/<set name>/TODO.md` for that song's open tasks | no |
 | `presets/` | Mastering chain presets (JSON) | yes |
 
 Export from Live with **File → Export Audio/Video** and choose a folder under `exports/`; Live remembers it.

@@ -234,3 +234,13 @@ Phase 11.
   deliberate change with the compatibility tests re-run.
 - The Remote Script runs in Live's embedded Python 3.11. The test suite runs on 3.12+, so newer
   syntax or a third-party import would otherwise only fail inside Live.
+
+## D23. Tool TODOs and song TODOs live apart (2026-10-11)
+
+**Decision:** `TODO.md` at the repo root holds only tasks for AbletonMCP itself. Tasks for one Live
+set go in `agent/projects/<set name>/TODO.md`, named after `live.song` from `get_session_overview`
+and git-ignored with the rest of `agent/`. `workspace.py` creates `agent/projects/`.
+
+**Why:** working on a song produces both kinds of task. Mixed together, the tracked tool backlog
+fills up with one user's song notes (and their set and track names), and the song notes get lost
+among tool work. The test: would the task still matter in a different Live set?
