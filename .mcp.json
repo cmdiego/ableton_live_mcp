@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ableton": {
+      "command": "uv",
+      "args": ["--directory", "/Users/cd/Dev/ableton_mcp", "run", "ableton-mcp"]
+    }
+  }
+}

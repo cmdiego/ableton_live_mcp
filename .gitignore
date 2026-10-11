@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# agent/: keep the layout and presets, never audio or generated reports
+agent/**
+!agent/
+!agent/README.md
+!agent/*/
+!agent/*/.gitkeep
+!agent/presets/**
