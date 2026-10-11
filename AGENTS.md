@@ -92,5 +92,6 @@ compatibility tests.
   - `docs/decisions.md`: why
   - `docs/api-notes.md`: Live API facts
   - `docs/clients.md`: client setup and tool rules
+  - `TODO.md`: open tasks and investigations
 - Record new design decisions in `docs/decisions.md` (context, decision, evidence).
-- No dated handoff files: keep "next steps" current in `docs/summary.md`.
+- No dated handoff files: open tasks live in `TODO.md`; remove an item once its outcome is recorded.

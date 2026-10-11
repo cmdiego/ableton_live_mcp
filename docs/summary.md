@@ -95,6 +95,8 @@ It has three pieces:
 
 ## Next steps (suggested priority)
 
+Concrete open tasks and investigations are tracked in [TODO.md](../TODO.md).
+
 1. **Validate on a real song.** Export the stems and mix of a track in progress, then run `mix_check` and `master_track`, and tune the heuristics on real material.
 2. **Hardening (small):**
    - pin the `mcp` version;
