@@ -12,7 +12,8 @@ It has three pieces:
 | **MCP server** ([`src/ableton_mcp/`](../src/ableton_mcp/)) | 35 tools, 5 workflow prompts, 4 resources, and all the music, audio and mastering logic |
 | **AbletonMCP Analyzer** ([`m4l/`](../m4l/), Max for Live device on the master) | Records Live's real output and provides a live meter |
 
-**Status:** Phases 0–11 of the original plan are done. 180 offline tests pass, as do 41 end-to-end checks against a running Live 12.4.6 Suite ([`scripts/smoke.py`](../scripts/smoke.py)). Notes on Live's API and its quirks are in [api-notes.md](api-notes.md).
+**Status:** Phases 0–11 of the original plan are done. 180 offline tests pass, as do 41 end-to-end checks against a running Live 12.4.6 Suite ([`scripts/smoke.py`](../scripts/smoke.py)). How it works is in [architecture.md](architecture.md), why it's built this way in
+[decisions.md](decisions.md), and Live's API quirks in [api-notes.md](api-notes.md).
 
 ## How to use it
 
