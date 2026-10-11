@@ -4,6 +4,8 @@ A simple MCP server for Ableton Live 12 that uses the standard Live API + Max fo
 It lets Claude (or any MCP client: OpenCode, Codex, Copilot, Cursor, Gemini CLI) organize, compose, mix
 and master your tracks.
 
+**Overview:** [docs/summary.md](docs/summary.md) covers what it can do, how to use it, its limits and next steps.
+
 ```
 Claude (Desktop / Code) ──MCP stdio──▶ ableton-mcp server ──JSON lines, TCP 9877──▶ AbletonMCP Remote Script (in Live)
 ```
