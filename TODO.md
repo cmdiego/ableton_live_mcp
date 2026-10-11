@@ -144,3 +144,34 @@ measured with `analyze_audio(track=…, arrangement_clip=…)`. That was enough 
 kick stacked at 50–100 Hz. When `agent/exports` has no stems, the prompt should fall back to this,
 saying that clip gain, warping, effects and faders aren't included. Compare each part's 1/3-octave
 peaks, flag overlaps in the low end, and offer an export or an analyzer capture to confirm.
+
+## Feature: transcribe an audio clip (pitch, rhythm, chords)
+
+Writing a part that fits a recorded hardware loop needed a throwaway script, because the tools can
+read the notes of MIDI clips but not of audio clips. What worked, on the clip's source file over
+its loop region (beats → seconds through the clip's warp markers):
+- **Rhythm:** a low-passed RMS envelope per 16th plus 5 ms onsets gives a step grid (onset /
+  sustain / rest) that matched the part.
+- **Pitch:** autocorrelation per note was unreliable on a detuned, modulated analog bass (it gave
+  sidebands about 3 Hz apart). A long FFT over each sustained note, read together with the chord
+  roots, was usable.
+- **Chords:** chroma per bar (FFT 16384, 90 Hz–2 kHz, top pitch classes) clearly gave the chords.
+
+**Proposal:** a `transcribe` detail (or `include`) option on `analyze_audio` for `track` + `slot` /
+`arrangement_clip` (no new tool). It returns step grids per bar, note estimates with a confidence
+value, chords per bar and a likely key, in the same shape `read_clip` uses for MIDI, so
+`write_notes` and `write_bassline` can build on it. Code in `audio/` (pure DSP) with offline tests
+on synthetic tones, chords and a detuned saw.
+
+## Bug: track routing to external MIDI ports shows as empty
+
+`get_track_details` returned `""` for a MIDI track's output type and channel when it was routed
+to an external hardware port. In Live, `output_routing_type.display_name` is empty for that type,
+and the port isn't listed in `available_output_routing_types` (only tracks and "No Output"), so
+the tools can neither show nor set routing to hardware. Duplicating an already-routed track was the
+only way to copy it.
+- Find out whether the port names are reachable another way (`category`, `attached_object`, the
+  routing channel's `layout`, or `app` / control surface MIDI port info), or whether this only
+  happens while the hardware is disconnected.
+- At minimum, report "external MIDI port (name not available through Live's API)" instead of an
+  empty string, and record the finding in `docs/api-notes.md`.
