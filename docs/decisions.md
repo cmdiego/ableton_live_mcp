@@ -221,3 +221,16 @@ SDK).
 
 **Why:** MCP clients are the interface for now. Asked at the Phase 9 checkpoint and reconfirmed after
 Phase 11.
+
+## D22. Pin the MCP SDK to 2.3.x; CI checks the Remote Script on 3.11 (2026-10-11)
+
+**Decision:** `mcp>=2.3,<2.4` in `pyproject.toml`. GitHub Actions runs the offline suite on Python
+3.12 and 3.13 (`uv sync --locked`), and separately compiles and imports the Remote Script on Python
+3.11 with only the standard library.
+
+**Why:**
+- `app.tool()` rewrites registered schemas and `batch` calls tools through `MCPServer._tool_manager`,
+  a private API that a minor release may change. Patch releases are fine; minor upgrades should be a
+  deliberate change with the compatibility tests re-run.
+- The Remote Script runs in Live's embedded Python 3.11. The test suite runs on 3.12+, so newer
+  syntax or a third-party import would otherwise only fail inside Live.

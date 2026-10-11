@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install (fails if uv.lock is out of date with pyproject.toml)
+        run: uv sync --locked
+      - name: Offline test suite (fake Live; no Ableton needed)
+        run: uv run pytest -q
+
+  remote-script:
+    # The Remote Script runs inside Live's embedded Python 3.11 with only the standard library.
+    name: Remote Script on Live's Python 3.11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compiles on 3.11
+        run: python -m compileall -q -f remote_script
+      - name: Imports with the standard library only (Live's _Framework is loaded lazily)
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "remote_script")
+          import AbletonMCP, AbletonMCP.dispatcher, AbletonMCP.handlers, AbletonMCP.lom, AbletonMCP.server
+          print("ok:", sorted(AbletonMCP.handlers.COMMANDS))
+          PY

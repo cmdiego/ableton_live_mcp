@@ -28,15 +28,21 @@ def test_osc_roundtrip():
     assert m4l.decode(m4l.encode("/stopped")) == ("/stopped", [])
 
 
-@pytest.mark.skipif(not __import__("os").path.exists(
-    "/Applications/Ableton Live 12 Suite.app/Contents/App-Resources/Misc/Max Devices/Max Audio Effect.amxd"),
-    reason="needs Live Suite's Max template")
-def test_generated_device_is_well_formed():
+DEVICE = BUILD.with_name("AbletonMCP Analyzer.amxd")
+TEMPLATE = Path("/Applications/Ableton Live 12 Suite.app/Contents/App-Resources/Misc/Max Devices/Max Audio Effect.amxd")
+
+
+def _load_build_module():
     import importlib.util
     spec = importlib.util.spec_from_file_location("build_analyzer", BUILD)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    raw = mod.build()
+    return mod
+
+
+def test_committed_device_is_well_formed():
+    """Runs everywhere (CI included): checks the .amxd that install_remote_script.sh ships."""
+    raw = DEVICE.read_bytes()
     assert raw[:4] == b"ampf" and raw[8:12] == b"aaaa" and raw[12:16] == b"meta"
     n = struct.unpack("<I", raw[28:32])[0]
     assert raw[24:28] == b"ptch" and len(raw) == 32 + n and raw.endswith(b"\n\x00")
@@ -51,6 +57,13 @@ def test_generated_device_is_well_formed():
         dst, inlet = line["patchline"]["destination"]
         assert src in boxes and dst in boxes, line
         assert out < boxes[src]["numoutlets"] and inlet < boxes[dst]["numinlets"], line
+
+
+@pytest.mark.skipif(not TEMPLATE.exists(), reason="needs Live Suite's Max template (not on CI)")
+def test_committed_device_matches_build_script():
+    """Rebuild from the template: the committed .amxd must be up to date with build_analyzer.py."""
+    assert _load_build_module().build() == DEVICE.read_bytes(), \
+        "m4l/AbletonMCP Analyzer.amxd is stale: run `uv run python m4l/build_analyzer.py` and commit it"
 
 
 class FakeDevice:

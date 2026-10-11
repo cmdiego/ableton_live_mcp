@@ -31,6 +31,12 @@ that look odd but are deliberate.
   scripts/install_remote_script.sh
   ```
 
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `pytest` on Python 3.12 and 3.13 with
+`uv sync --locked`, and checks that the Remote Script compiles and imports on Python 3.11 with the
+standard library only. After changing dependencies, run `uv lock` and commit `uv.lock`. `mcp` is pinned
+to 2.3.x on purpose (see D22 in docs/decisions.md); upgrade it deliberately and re-run the
+compatibility tests.
+
 ## Rules for the Remote Script (`remote_script/AbletonMCP/`)
 
 - Live's embedded **Python 3.11, standard library only**. Never block Live's main thread or add threads.
