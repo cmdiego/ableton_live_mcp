@@ -351,3 +351,20 @@ For several targets, the agent layer prefers explicit, list-based actions that s
 (`solo_tracks(tracks=[…])`) over flags that depend on the current state. The user chose this for
 being explicit, easy to test and debug, and easy to maintain.
 
+
+## D30. Find and test hidden Live behavior before specifying a capability (2026-10-12)
+
+**Decision:**
+- Every capability's research step lists and tests its hidden behavior. The sources are
+  preferences, changes to other objects, hierarchy, timing, modifier variants, defaults, selection,
+  undo and stored state.
+- Per item, the Live layer reproduces it, or leaves it out with a note in `docs/api-notes.md`
+  ("API vs. Live").
+- Existing parameters get the same audit (`TODO.md`, P2).
+
+The checklist is in `docs/api-protocol.md`, section 1.
+
+**Why:** Live's API sets bare properties, while doing the same thing in Live applies preferences
+and side effects. A tool that wraps the property drifts from Live unnoticed, which breaks D29's
+promise that the Live layer behaves like Live. Solo was the case that showed this; Exclusive Arm and
+launch quantization are likely to follow the same pattern.

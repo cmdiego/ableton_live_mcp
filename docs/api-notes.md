@@ -87,6 +87,14 @@ Device-specific classes exposed in `Live`: `Eq8Device`, `CompressorDevice`, `Roa
   `Song.groove_amount`, `Song.swing_amount`.
 - `RoutingType` has `category`, `display_name` and `attached_object`.
 
+## API vs. Live: hidden behavior
+
+Differences between setting something through the API and doing it in Live
+(`docs/api-protocol.md`, "Hidden behavior"). Add a row whenever a test finds one.
+
+| Feature | In Live | Through the API | Probed |
+|---|---|---|---|
+
 ## Implications for later phases
 - Phase 5: use `Track.insert_device` first; the browser search is only a fallback (e.g. for presets and plugins).
 - Phase 8: `create_midi_clip`/`create_audio_clip` and `duplicate_clip_to_arrangement` allow building arrangement sections.

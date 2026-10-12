@@ -236,6 +236,23 @@ well (`arrangement_end_beats`), and say which one tools such as `get_arrangement
 **Done when:** the overview reports the arrangement's end next to (or instead of) Live's
 `song_length`, with a label that says what each one means.
 
+### Audit: hidden Live behavior in existing parameters
+
+Existing Live-layer parameters set bare API properties, which can skip what the same action does in
+Live. Check each against the "Hidden behavior" table in `docs/api-protocol.md`: test on scratch
+tracks with the relevant preferences on and off, record differences in `docs/api-notes.md`, and
+file a bug for each gap. Start with:
+- `set_track`: arm (Exclusive Arm), mute and solo on group tracks, fold;
+- `playback`: `fire_clip` and `fire_scene` (launch quantization, Select on Launch, scene tempo);
+- `create`: the names, colors and position a new track gets in Live;
+- `load_device`: where the device goes and what gets selected.
+
+This touches the Control and Operating surfaces, so it gets P1 urgency.
+
+**Done when:** every Live-layer parameter of `set_track`, `set_clip`, `set_scene`, `set_song`,
+`set_mixer`, `playback`, `create` and `load_device` is checked, with differences recorded and a bug
+filed for each gap.
+
 ### Bug: the first `analyzer install` in a set reports that the analyzer doesn't answer
 
 A first install reported "on the master but doesn't answer", and `status` right afterwards reported

@@ -47,6 +47,51 @@ AbletonMCP has two kinds of operation, and they're kept apart:
 So a capability never changes what an existing parameter does. New behavior gets a new parameter
 or action.
 
+### Hidden behavior: what Live does beyond the property
+
+A feature in Live is often more than the property the API sets. Clicking a button can apply a
+preference, change other objects, wait for quantization or change the selection. Setting the same
+property through the API usually does only the bare change. A tool that wraps the bare property
+therefore behaves differently from Live, without anyone noticing.
+
+**Rule:** before specifying a capability, list its hidden behavior and test each item on scratch
+tracks. Then decide, per item:
+- **reproduce it in the Live layer**, because that's what the feature does in Live; or
+- **leave it out and document it**, when Live's API can't reproduce it.
+
+Behavior that Live doesn't have is never added to the Live layer; it goes to the agent layer.
+
+**Where to look** (check every row for each capability):
+
+| Source | Questions to ask | Known or likely cases |
+|---|---|---|
+| **Preferences** | Does a Live setting change what the action does? | Exclusive Solo (probed: the API ignores it), Exclusive Arm (`Song.exclusive_arm`), Select on Launch, launch quantization |
+| **Changes to other objects** | Does the action change other tracks, clips or devices in Live? | Exclusive solo and arm; launching a clip stops the track's other clip; soloing a group track; `muted_via_solo` |
+| **Hierarchy** | Do groups, racks or returns pass it on? | Group tracks fold, mute and solo with their children; rack chains; returns and the master |
+| **Timing** | Does it wait for quantization, the next bar or the transport? | Clip and scene launch quantization; changes while playing vs. stopped |
+| **Modifier variants** | Does Cmd/Ctrl, Shift or Alt change it in Live? | Cmd-click Solo or Arm adds to the current solos or arms |
+| **Defaults** | Does Live fill in values the API leaves empty? | Names and colors of new tracks and clips; warp settings and fades on new audio clips; where a device is inserted |
+| **Selection and view** | Does Live select, show or scroll to something? | Select on Launch; inserting a device selects it |
+| **Undo** | Is it one undo step in Live, but several through the API? | Any action that changes several objects |
+| **What the API stores** | Does Live store hidden state with it? | `.asd` files next to audio (see the known traps) |
+
+**How to test:**
+1. On scratch tracks, with playback stopped unless timing is the question:
+   - do it through the API;
+   - read every object it could have touched;
+   - compare with what the same action does when clicked in Live.
+2. Ask the user only for what can't be tested through the API, e.g. what the click does in their
+   set.
+3. Test with the relevant preference both on and off.
+
+**Record:**
+- each difference in `docs/api-notes.md` under "API vs. Live";
+- the decision for each item in the spec ("Hidden behavior" field);
+- a test for each reproduced behavior.
+
+Existing Live-layer parameters were built before this rule and may wrap bare properties. Auditing
+them is a P2 item in `TODO.md`.
+
 ## 2. CRUD contracts
 
 | Verb | Annotation | Takes | Returns | Rules |
@@ -77,6 +122,8 @@ home, so the spec isn't kept as a separate file.
   | Name | Type | Required | Default | Units / range / values | Description |
   |---|---|---|---|---|---|
 - **Rules between parameters:** mutually exclusive or dependent parameters
+- **Hidden behavior:** for each source in section 1: what Live does, what the API does, and what
+  this capability does (reproduce, or leave out and document)
 - **Behavior:** what changes in Live; the Live API members used (checked in api-notes.md or with
   `live_api describe`); what happens when it's already in that state
 - **Postcondition:** what's checked afterwards
@@ -97,6 +144,8 @@ Don't ask what the code or Live can answer.
   stop.
 - Find the Live API members with `live_api op='describe'` or `docs/api-notes.md`. If Live doesn't
   expose it, say so and stop.
+- List the feature's hidden behavior (section 1, every row of the table) and test it on scratch
+  tracks. Turn whatever the tests can't settle into questions for Round C.
 - Fill in every field the conventions in section 1 settle, and note which fields are still open.
 
 ### Step 1: ask, in rounds
