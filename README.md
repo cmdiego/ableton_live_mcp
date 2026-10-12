@@ -61,3 +61,12 @@ muddy?", "add a breakdown before the second drop"). Claude picks the tools.
   For changes to `surface.py`, `server.py`, `dispatcher.py` or `__init__.py`, switch the control surface to None and back
   to AbletonMCP (it reloads all its modules on start). Edits to `__init__.py` itself only load after restarting Live.
 - Live's log: `~/Library/Preferences/Ableton/Live 12.4.6/Log.txt` (grep `AbletonMCP`).
+
+## License
+
+[Apache License 2.0](LICENSE). Contributions need a one-time CLA; see [CONTRIBUTING.md](CONTRIBUTING.md).
+Paid features, if any are ever offered, will ship as a separate add-on; nothing in this repo will move
+behind a paywall ([D31](docs/decisions.md)).
+
+Ableton, Live and Max for Live are trademarks of Ableton AG. This project is not affiliated with or
+endorsed by Ableton.

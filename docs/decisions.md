@@ -371,3 +371,36 @@ The checklist is in `docs/api-protocol.md`, section 1.
 and side effects. A tool that wraps the property drifts from Live unnoticed, which breaks D29's
 promise that the Live layer behaves like Live. Solo was the case that showed this; Exclusive Arm and
 launch quantization are likely to follow the same pattern.
+
+## D31. Apache-2.0 with a CLA; paid features as a separate add-on (2026-10-12)
+
+**Decision:**
+- The repo is licensed under Apache-2.0 (`LICENSE`, `NOTICE`, `license` in `pyproject.toml`).
+- Outside contributors sign `CLA.md` once, through a bot on their first pull request
+  (`.github/workflows/cla.yml`). It grants the maintainer the right to sublicense, including
+  under commercial terms. Signatures are stored on the `cla-signatures` branch, because `main` is
+  protected.
+- Monetization: donations at first. If the project ever builds a competitive edge, the paid
+  features ship as a separate, closed add-on that builds on this repo (open core). Code already in
+  this repo stays Apache-2.0.
+- Code and dependencies must be Apache-compatible (AGENTS.md, "Repo hygiene").
+
+**Why:**
+- The user chose adoption, which also drives donations, over protecting the code from forks.
+  Alternatives considered:
+  - FSL-1.1-ALv2: blocks competing commercial forks for two years, but isn't OSI open source.
+  - AGPL-3.0 with dual licensing: forks must stay open, but some users avoid AGPL.
+  - PolyForm Noncommercial: confusing for producers who earn from their music.
+- A release under Apache-2.0 can't be taken back; the license only protects the code in a closed
+  add-on. Each feature should be judged on that before it lands here.
+- Without a CLA, accepting outside code would leave the project with copyright holders whose
+  contributions can only be used under Apache-2.0. A paid edition that includes their code would
+  then depend on that license alone. The CLA keeps the maintainer free to relicense.
+
+**Evidence:**
+- Before this, the repo was public with no license, which meant all rights reserved: nobody could
+  legally use or fork it.
+- All commits were by the maintainer, so choosing the license needed no one else's agreement.
+- Dependencies (`mcp`, `numpy`, `scipy`, `soundfile`) are MIT or BSD.
+- The CLA action (`contributor-assistant/github-action`) is archived upstream; the workflow pins its
+  v2.6.1 commit.

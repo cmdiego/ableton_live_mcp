@@ -102,8 +102,7 @@ Concrete open tasks and investigations are tracked in [TODO.md](../TODO.md).
    - pin the `mcp` version;
    - add GitHub Actions to run `pytest` (it needs no Live);
    - make the client configs portable;
-   - handle agent paths with spaces;
-   - add a LICENSE.
+   - handle agent paths with spaces.
 3. **Better models:** calibrate Glue and Limiter on more mixes, and add genre target curves for mastering without a reference.
 4. **Features, if useful:** tempo and time-signature changes in the bar math; a true LUFS meter inside the Max device; bouncing session clips to audio via capture; Max for Live MIDI Tools.
 5. **GUI:** deferred for now. If it's ever built, it will be Claude-only, on the Claude Agent SDK.
