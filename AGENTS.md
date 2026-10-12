@@ -122,6 +122,9 @@ Keep them apart. Before writing a task down, ask: would it still matter in a dif
 - Never commit `agent/exports`, `agent/captures`, `agent/reports` (user audio and analyses), transcripts
   or secrets. `.gitignore` covers `agent/`; only its layout and `agent/presets` are tracked.
 - No machine-specific absolute paths in docs. Use `/path/to/ableton_live_mcp`.
+- The repo is Apache-2.0 (D31). Don't copy code, presets or devices from other projects unless their
+  license is Apache-compatible (MIT, BSD, Apache), and never from GPL or other copyleft projects. Say
+  where it came from in the commit message. New runtime dependencies follow the same rule.
 - One home per fact:
   - `README.md`: setup and overview
   - `docs/summary.md`: capabilities, limits, next steps

@@ -369,6 +369,18 @@ the catalog is listed in `INSTRUCTIONS`. This keeps new capabilities from using 
 **Done when:** the decision is in `docs/decisions.md`; the first three candidates from "Capability
 candidates" run as actions with offline tests; and `INSTRUCTIONS` lists the catalog.
 
+### Review: have `CLA.md` checked by someone with legal knowledge
+
+`CLA.md` (D31) was written for this project, modeled on the Apache Individual CLA, and hasn't had a
+legal review. Whether it really grants the right to relicense contributions under commercial terms
+decides whether a paid add-on can include contributed code.
+Do the review before merging the first outside pull request. Changing the CLA after people have
+signed means a new version (`signatures/version2/…` in `.github/workflows/cla.yml`), and earlier
+contributors would have to sign again.
+
+**Done when:** a reviewer has approved `CLA.md` or its changes are merged, and D31 records who
+reviewed it and when.
+
 ## P4: Prototypes and quality of life
 
 ### Feature: an "init" step for Live sets that haven't been set up for AbletonMCP

@@ -3,6 +3,8 @@ name = "ableton-mcp"
 version = "0.1.0"
 description = "MCP server that lets Claude organize, compose, mix and master in Ableton Live 12"
 requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 dependencies = [
     "mcp>=2.3,<2.4",  # uses 2.x internals (MCPServer, _tool_manager): upgrade minors deliberately
     "numpy>=2.0",
@@ -17,7 +19,7 @@ ableton-mcp = "ableton_mcp.server:main"
 dev = ["pytest>=8", "pyloudnorm>=0.1.1"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]  # 1.27+ reads SPDX `license` expressions (PEP 639)
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
