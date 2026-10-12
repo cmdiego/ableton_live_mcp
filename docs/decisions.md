@@ -404,3 +404,45 @@ launch quantization are likely to follow the same pattern.
 - Dependencies (`mcp`, `numpy`, `scipy`, `soundfile`) are MIT or BSD.
 - The CLA action (`contributor-assistant/github-action`) is archived upstream; the workflow pins its
   v2.6.1 commit.
+
+## D32. Two lanes: a private dev repo, and a public repo that only gets tested releases (2026-10-12)
+
+**Decision:**
+- Development happens in a private repository, `cmdiego/ableton_live_mcp-dev`. Its default branch
+  is `dev`, with feature branches, `release/X.Y` branches and all tags.
+- The public repository, `cmdiego/ableton_live_mcp`, only gets releases. Each one is a single
+  snapshot commit on `main`: the release tag's file tree, with the previous public release as its
+  only parent. `scripts/release.sh` creates and pushes it, tags it and creates the GitHub Release.
+- A release is published only when:
+  - its tag is on a release branch;
+  - CI passed on that commit;
+  - the versions and `CHANGELOG.md` match the tag;
+  - a smoke test against Live is recorded.
+- Outside pull requests are opened on the public repo (where the CLA bot runs). Accepted ones are
+  cherry-picked into `dev`, with the author kept, and the PR is closed with the release it will ship
+  in.
+- Everything in `dev` becomes public at the next release. Material that must stay private lives in
+  the add-on repository from D31, never behind a path filter.
+
+The process is in `docs/releasing.md`. It starts at v0.1.0.
+
+**Why:**
+- The user wants public releases that are tested and stable, and an experimental lane that the
+  public doesn't see.
+- GitHub sets visibility per repository: a branch can't be private, and a fork of a public repo
+  can't be private. So the lanes have to be separate repositories.
+- Snapshot commits keep the private history private: commit messages, reverted experiments, and
+  code that existed between releases. Pushing the release branch itself would publish all of it.
+- Since public `main` only ever gets snapshots, `dev` never needs to merge anything back from it.
+- Alternatives considered:
+  - a single public repo with a public `dev` branch: simpler, but nothing stays private;
+  - merging outside PRs directly on public `main`: friendlier to contributors, but `main` would then
+    contain changes that haven't been through a release.
+
+**Evidence:**
+- On GitHub Free, private repos can't have branch protection; enabling it on `dev` returned HTTP
+  403, "Upgrade to GitHub Pro". `scripts/release.sh` therefore checks CI on the tagged commit
+  itself.
+- Public `main` doesn't enforce its rules for admins, so the script can fast-forward it directly.
+- The history up to and including PR #5 (the license) was already public. The private repo starts
+  from that commit.

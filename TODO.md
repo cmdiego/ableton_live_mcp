@@ -206,15 +206,6 @@ set, and the undo limits are documented.
 
 ## P2: Defects and verification
 
-### Bug: adding a locator sometimes fails to move the playhead
-
-`edit_arrangement add_locator` failed once with "Couldn't move the playhead to beat 64 (it's at 0)"
-and the same call succeeded on retry. `cue_ops.move_to` in `tools/arrangement.py` reads
-`current_song_time` back straight after setting it; Live applies the new position a tick later (see
-`docs/api-notes.md`). Poll the position a few times before giving up.
-
-**Done when:** adding eight locators in a row on a fresh set succeeds without retries.
-
 ### Bug: `get_arrangement` calls the same section a drop and an intro
 
 With a 32-bar arrangement where every part plays throughout, the only section was labelled `drop`,

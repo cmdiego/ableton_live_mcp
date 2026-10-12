@@ -68,6 +68,8 @@ Device-specific classes exposed in `Live`: `Eq8Device`, `CompressorDevice`, `Roa
   takes effect a tick later. In the same tick, the toggle hits the *old* position and can
   **delete the wrong locator** (observed). So locator ops run as separate, verified calls from the
   server: move the playhead, confirm it, check `is_cue_point_selected()`, toggle, verify.
+  Confirming means polling: reading the position straight back often still returns the old one
+  (observed twice in one smoke run). `cue_ops` polls for up to about 1 s.
 - `CuePoint.name` is writable; `CuePoint.time` is not (moving = delete + add).
 - **Playback start:** `Song.start_playing()` begins at `Song.start_time` (the play-start marker), *not*
   at `current_song_time`. Setting only the playhead and pressing play starts from the old marker

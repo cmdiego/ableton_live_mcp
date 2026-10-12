@@ -2,6 +2,7 @@ name: CLA
 
 # Asks first-time contributors to sign CLA.md by commenting on their pull request (D31).
 # Signatures are committed to the unprotected `cla-signatures` branch, which must exist.
+# Runs only in the public repo, where outside pull requests are opened (D32).
 # pull_request_target runs in the base repo's context; this job never checks out pull request code.
 on:
   issue_comment:
@@ -19,10 +20,11 @@ jobs:
   cla:
     runs-on: ubuntu-latest
     if: >-
-      github.event_name == 'pull_request_target' ||
-      (github.event.issue.pull_request &&
-       (github.event.comment.body == 'recheck' ||
-        github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
+      github.repository == 'cmdiego/ableton_live_mcp' &&
+      (github.event_name == 'pull_request_target' ||
+       (github.event.issue.pull_request &&
+        (github.event.comment.body == 'recheck' ||
+         github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA')))
     steps:
       # The upstream repo is archived; pinned to the v2.6.1 commit.
       - uses: contributor-assistant/github-action@ca4a40a7d1004f18d9960b404b97e5f30a505a08 # v2.6.1

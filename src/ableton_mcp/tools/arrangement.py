@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Literal
 
 from .. import resolve
@@ -11,6 +12,8 @@ from ..audio.stems import guess_role
 from ..live_client import LiveClient, LiveError, get_client
 from ..theory import arrangement as arr
 from ..util import compact, require_confirm
+
+_PLAYHEAD_POLLS, _PLAYHEAD_POLL_S = 20, 0.05
 
 CLIP_PROPS = ["name", "start_time", "end_time", "is_midi_clip", "muted", "looping", "loop_start", "loop_end",
               "start_marker", "end_marker", "length"]
@@ -144,10 +147,14 @@ def cue_ops(client: LiveClient, ops: list[dict]) -> dict:
         return [c for c in client.query("song.cue_points", {"props": ["name", "time"]}) if abs(c["time"] - t) < 1e-6]
 
     def move_to(t: float) -> None:
+        # Live applies a new playhead position a tick later, so poll for it (up to about 1 s).
         client.set("song", current_song_time=float(t))
-        now = client.get("song", "current_song_time")["current_song_time"]
-        if abs(now - t) > 1e-6:
-            raise LiveError(f"Couldn't move the playhead to beat {t:g} (it's at {now:g})")
+        for _ in range(_PLAYHEAD_POLLS):
+            now = client.get("song", "current_song_time")["current_song_time"]
+            if abs(now - t) <= 1e-6:
+                return
+            time.sleep(_PLAYHEAD_POLL_S)
+        raise LiveError(f"Couldn't move the playhead to beat {t:g} (it's at {now:g})")
 
     try:
         for op in ops:

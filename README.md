@@ -13,6 +13,7 @@ and master your tracks.
 - [docs/api-notes.md](docs/api-notes.md): Live API facts and quirks
 - [docs/clients.md](docs/clients.md): setting up MCP clients
 - [AGENTS.md](AGENTS.md): instructions for AI coding agents working on the repo
+- [CHANGELOG.md](CHANGELOG.md): what changed in each release; `main` always holds the latest release
 
 ```
 Claude (Desktop / Code) ──MCP stdio──▶ ableton-mcp server ──JSON lines, TCP 9877──▶ AbletonMCP Remote Script (in Live)

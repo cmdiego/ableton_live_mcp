@@ -31,6 +31,12 @@ that look odd but are deliberate.
   scripts/install_remote_script.sh
   ```
 
+- Publish a tagged release to the public repo (dry run without `--publish`; process in
+  [docs/releasing.md](docs/releasing.md)):
+  ```bash
+  scripts/release.sh vX.Y.Z
+  ```
+
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs `pytest` on Python 3.12 and 3.13 with
 `uv sync --locked`, and checks that the Remote Script compiles and imports on Python 3.11 with the
 standard library only. After changing dependencies, run `uv lock` and commit `uv.lock`. `mcp` is pinned
@@ -117,6 +123,16 @@ Keep them apart. Before writing a task down, ask: would it still matter in a dif
 - At the start of work on a set, read its `agent/projects/<set name>/TODO.md` if there is one. At the
   end, update it: add what's still open, remove what's done.
 
+## Two lanes: private development, public releases
+
+This checkout's `origin` is the private dev repo (`cmdiego/ableton_live_mcp-dev`). The `public`
+remote is the public repo, which gets one snapshot commit per release (D32).
+- Branch from `dev` and open pull requests against `dev` in the private repo.
+- Never push to the `public` remote. Only `scripts/release.sh` publishes, and only when the user asks
+  for a release.
+- Everything merged into `dev` becomes public at the next release, including `TODO.md` and the docs.
+  Material that must stay private doesn't go in this repo at all.
+
 ## Repo hygiene
 
 - Never commit `agent/exports`, `agent/captures`, `agent/reports` (user audio and analyses), transcripts
@@ -134,6 +150,8 @@ Keep them apart. Before writing a task down, ask: would it still matter in a dif
   - `docs/clients.md`: client setup and tool rules
   - `docs/capabilities.md`: how friction becomes new actions
   - `docs/api-protocol.md`: interface conventions and how a new capability is specified
+  - `docs/releasing.md`: the two lanes and how a release is cut and published
+  - `CHANGELOG.md`: what changed in each release
   - `TODO.md`: open tasks and investigations for the tool (song tasks: see above)
 - Record new design decisions in `docs/decisions.md` (context, decision, evidence).
 - Agent instruction files: `AGENTS.md` is the only home for shared rules. `CLAUDE.md` starts with

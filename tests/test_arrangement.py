@@ -131,3 +131,32 @@ def test_empty_arrangement_explains(client, song):
     song.tracks[1].arrangement_clips.clear()
     with pytest.raises(LiveError, match="build_from_scenes"):
         A.get_arrangement()
+
+
+class _LaggingSong:
+    """Mixin for the fake Song: a new playhead position shows up two reads late, as Live applies it a
+    tick later (docs/api-notes.md)."""
+
+    @property
+    def current_song_time(self):
+        pending = self.__dict__.get("_pending")
+        if pending:
+            pending[1] -= 1
+            if pending[1] < 0:
+                self.__dict__["current_song_time"], self.__dict__["_pending"] = pending[0], None
+        return self.__dict__["current_song_time"]
+
+    @current_song_time.setter
+    def current_song_time(self, t):
+        self.__dict__["_pending"] = [t, 2]
+
+
+def test_locator_ops_wait_for_the_playhead(song, client):
+    """Regression: reading the playhead once, straight after moving it, failed at random in Live."""
+    song.cue_points.clear()
+    song.__class__ = type("LaggingSong", (_LaggingSong, type(song)), {})
+    A.edit_arrangement("add_locator", bar=9, name="Hook")
+    A.edit_arrangement("add_locator", bar=17, name="Drop")
+    assert [(c.name, c.time) for c in song.cue_points] == [("Hook", 32.0), ("Drop", 64.0)]
+    A.edit_arrangement("delete_locator", locator="Hook")
+    assert [c.name for c in song.cue_points] == ["Drop"]
