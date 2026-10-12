@@ -8,16 +8,20 @@ uv --directory /path/to/ableton_live_mcp run ableton-mcp
 
 | Client | Status | Where the config lives |
 |---|---|---|
-| OpenCode | ✅ Verified end to end with `openai/gpt-5.5` (read, create, mixer, delete) | `opencode.json` in this repo |
+| OpenCode | ✅ Verified end to end with `openai/gpt-5.5` (read, create, mixer, delete) | `opencode mcp add` (see below) |
 | Codex CLI | ✅ Verified (read, create, mixer); deletes always ask for approval | `~/.codex/config.toml` (see below) |
-| Claude Code | Config in repo; protocol-tested | `.mcp.json` in this repo |
+| Claude Code | Protocol-tested | `claude mcp add` (see below) |
 | Claude Desktop | Snippet below; protocol-tested | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | VS Code Copilot, Cursor, Gemini CLI | Snippets below; not installed here, untested | see below |
 
 "Protocol-tested" means `tests/test_client_compat.py` passes: initialize with protocol versions 2024-11-05, 2025-03-26 and 2025-06-18, list tools, call tools.
 
+## Claude Code
+```bash
+claude mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
+```
+
 ## OpenCode
-Already configured for this project (`opencode.json`). Elsewhere:
 ```bash
 opencode mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
 opencode reload

@@ -67,9 +67,11 @@ Python 3.12+ for you), and an MCP client such as Claude Code or Claude Desktop.
    ```
    uv --directory /path/to/ableton_live_mcp run ableton-mcp
    ```
-   Claude Code (`.mcp.json`) and OpenCode (`opencode.json`) pick up the config in this repo; set the
-   path in it to your clone. For Codex, Claude Desktop, Copilot, Cursor and Gemini CLI, see
-   [docs/clients.md](docs/clients.md).
+   For Claude Code:
+   ```bash
+   claude mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
+   ```
+   Claude Desktop, OpenCode, Codex, Copilot, Cursor and Gemini CLI: [docs/clients.md](docs/clients.md).
 5. Check it on a scratch set (it adds and removes a test track and briefly plays audio):
    ```bash
    uv run python scripts/smoke.py
