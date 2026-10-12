@@ -42,7 +42,8 @@ AbletonMCP has two kinds of operation, and they're kept apart:
   description says it's an AbletonMCP extension.
 - **When the raw API differs from the feature in Live,** record the difference in
   `docs/api-notes.md`. The planning questions then settle which behavior the Live-layer parameter
-  follows.
+  follows. Example: `Track.solo` set through the API is additive, while soloing in Live with
+  Exclusive Solo on unsolos the other tracks.
 
 So a capability never changes what an existing parameter does. New behavior gets a new parameter
 or action.
@@ -176,3 +177,50 @@ Don't ask what the code or Live can answer.
    the postcondition, and the already-in-that-state case.
 2. Then the code, following AGENTS.md ("Adding or changing tools").
 3. Update the docs the spec lists.
+
+## Worked example: solo
+
+**Step 0 research:**
+- `set_track(track, solo: bool)` exists.
+- `Song.exclusive_solo` exists, and it's on in the probed set.
+- Probe: `Track.solo` set through the API is additive. Soloing A and then B leaves both soloed,
+  while in Live, with Exclusive Solo on, B would replace A.
+- The two-layer rule applies: the raw API and Live's feature differ.
+- Hidden-behavior checklist (section 1):
+  - Preferences: Exclusive Solo, which differs (probed).
+  - Modifier variants: Cmd-click adds to the current solos, which the agent layer covers
+    (question 2).
+  - Hierarchy: group tracks and returns, not tested yet (a note on the bug).
+  - Undo: unsoloing others must be in the same undo step.
+
+**Questions asked:**
+1. What should `set_track(solo=true)` do?
+   - (a) Follow Live's Exclusive Solo preference (recommended).
+   - (b) Stay additive, like the raw API.
+2. How should several tracks be soloed at once?
+   - (a) A `keep_others` flag on `set_track`.
+   - (b) A list-based action.
+   - The user's answer: (b), because "explicit and can easily be tested and debugged".
+
+**Spec outcome:**
+- **Live layer.** `set_track(solo=true)` follows `Song.exclusive_solo`:
+  - with Exclusive Solo on, it unsolos the tracks Live would unsolo;
+  - with it off, it's additive.
+
+  Today's additive behavior is a bug (`TODO.md`, P2). The result lists any tracks it unsoloed.
+- **Agent layer.** A `solo_tracks(tracks: list[str | int])` action:
+  - afterwards exactly these tracks are soloed and every other track isn't, whatever was soloed
+    before;
+  - an empty list clears all solos;
+  - one undo step;
+  - postcondition: the set of soloed tracks equals `tracks`;
+  - returns `{"soloed": [names], "unsoloed": [names]}`;
+  - error: an unknown track name, before anything changes.
+
+  It's an L3 action in the action layer (`TODO.md`, P3).
+
+Two conventions decided this example:
+- An earlier idea, `solo="only"`, would mix `bool` and `str` in one parameter, which section 1
+  rules out.
+- A `keep_others` flag would make the result depend on what was soloed before. The list states the
+  end result, which section 1 prefers.
