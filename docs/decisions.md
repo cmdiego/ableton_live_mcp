@@ -351,6 +351,9 @@ For several targets, the agent layer prefers explicit, list-based actions that s
 (`solo_tracks(tracks=[…])`) over flags that depend on the current state. The user chose this for
 being explicit, easy to test and debug, and easy to maintain.
 
+**Evidence:** the raw API already differs from Live in places. `Track.solo` is additive through the
+API but exclusive in Live with Exclusive Solo on (`docs/api-notes.md`). Such differences are
+recorded and settled per feature.
 
 ## D30. Find and test hidden Live behavior before specifying a capability (2026-10-12)
 

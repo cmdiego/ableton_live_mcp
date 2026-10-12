@@ -94,6 +94,7 @@ Differences between setting something through the API and doing it in Live
 
 | Feature | In Live | Through the API | Probed |
 |---|---|---|---|
+| Solo | With Exclusive Solo on (`Song.exclusive_solo`), soloing a track unsolos the others | `Track.solo = True` is additive: soloing A, then B leaves both soloed | 2026-10-12, two scratch MIDI tracks, stopped |
 
 ## Implications for later phases
 - Phase 5: use `Track.insert_device` first; the browser search is only a fallback (e.g. for presets and plugins).

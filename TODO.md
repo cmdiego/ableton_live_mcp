@@ -236,12 +236,27 @@ well (`arrangement_end_beats`), and say which one tools such as `get_arrangement
 **Done when:** the overview reports the arrangement's end next to (or instead of) Live's
 `song_length`, with a label that says what each one means.
 
+### Bug: `set_track(solo=true)` doesn't follow Live's Exclusive Solo
+
+Through the API, `Track.solo` is additive. With Live's Exclusive Solo preference on, soloing a track
+in Live unsolos the others, but `set_track(solo=true)` leaves them soloed (`docs/api-notes.md`).
+Following D29, the parameter should behave like Live:
+- read `Song.exclusive_solo`;
+- when it's on, unsolo the tracks Live would unsolo, in the same undo step;
+- list them in the result.
+
+First check in Live which tracks it unsolos: returns, and tracks inside groups. This is a Control
+surface bug, so it gets P1 urgency.
+
+**Done when:** offline tests cover Exclusive Solo on and off, and a `smoke.py` check on scratch
+tracks matches what clicking Solo in Live does.
+
 ### Audit: hidden Live behavior in existing parameters
 
 Existing Live-layer parameters set bare API properties, which can skip what the same action does in
 Live. Check each against the "Hidden behavior" table in `docs/api-protocol.md`: test on scratch
 tracks with the relevant preferences on and off, record differences in `docs/api-notes.md`, and
-file a bug for each gap. Start with:
+file a bug for each gap. Solo is already filed (above). Start with:
 - `set_track`: arm (Exclusive Arm), mute and solo on group tracks, fold;
 - `playback`: `fire_clip` and `fire_scene` (launch quantization, Select on Launch, scene tempo);
 - `create`: the names, colors and position a new track gets in Live;
@@ -450,6 +465,9 @@ and offline tests on synthetic material get the rhythm, notes and chords right.
 Friction found in real use, not yet qualified (method: `docs/capabilities.md`). Each candidate
 lists its signal, an example and a suggested level. Once it's qualified, move it into a tier above.
 
+- **Soloing several tracks** (signal: fan-out). Specified (`docs/api-protocol.md`, worked example):
+  a `solo_tracks(tracks=[…])` action, L3. After it runs, exactly these tracks are soloed. Waits for
+  the action layer (P3).
 - **Building a song skeleton from a loop** (signal: a throwaway script of about 240 raw ops).
   Already the P4 `set_part_ranges` item. Suggested level: L3.
 - **Transcribing an audio clip** (signal: a throwaway DSP script). Already the P4 transcribe
