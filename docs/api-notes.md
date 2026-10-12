@@ -74,6 +74,19 @@ Device-specific classes exposed in `Live`: `Eq8Device`, `CompressorDevice`, `Roa
   (observed). To play from a position, set `start_time` (both, to move the playhead too).
   Both are refused past the song length ("Cannot set the Songtime behind the Songlength").
 
+## Telemetry and per-set data (probed 2026-10-12 with `lom_describe` and `runtime_info`)
+- CPU: `Application.average_process_usage` and `peak_process_usage` (percent).
+- Per-track load: `Track.performance_impact` (0.0 on an idle set).
+- Device latency: `Device.latency_in_samples` and `latency_in_ms`.
+- Meters: `Track.output_meter_level` / `_left` / `_right` and `input_meter_*`.
+- Not exposed: per-track memory, and track delay (neither `Track` nor `MixerDevice` lists it).
+- `Song.file_path` gives the `.als` path.
+- `Song` and `Track` have `get_data(key, default)` / `set_data(key, value)`. The data is saved in the
+  Live Set and restored when the set is loaded.
+- Also present: `Song.move_device`, `Track.duplicate_device`, `Track.create_take_lane`,
+  `Song.groove_amount`, `Song.swing_amount`.
+- `RoutingType` has `category`, `display_name` and `attached_object`.
+
 ## Implications for later phases
 - Phase 5: use `Track.insert_device` first; the browser search is only a fallback (e.g. for presets and plugins).
 - Phase 8: `create_midi_clip`/`create_audio_clip` and `duplicate_clip_to_arrangement` allow building arrangement sections.

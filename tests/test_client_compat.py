@@ -9,9 +9,9 @@ import sys
 
 import pytest
 
+from ableton_mcp.app import TOOL_BUDGET
 from ableton_mcp.server import mcp
 
-TOOL_BUDGET = 40  # Copilot caps at 128 tools across all servers; some clients degrade past ~40.
 NAME_RE = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")  # OpenAI/Copilot function-name rule
 FORBIDDEN_KEYS = {"anyOf", "oneOf", "allOf", "$ref", "$defs", "title"}
 
