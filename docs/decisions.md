@@ -244,3 +244,130 @@ and git-ignored with the rest of `agent/`. `workspace.py` creates `agent/project
 **Why:** working on a song produces both kinds of task. Mixed together, the tracked tool backlog
 fills up with one user's song notes (and their set and track names), and the song notes get lost
 among tool work. The test: would the task still matter in a different Live set?
+
+## D24. Four priority tiers, with P1 defined by surfaces (2026-10-12)
+
+**Decision:** Every item in `TODO.md` sits in one of four tiers:
+- **P1, core surfaces:** what an agent needs to operate Live at all. The surfaces are Control,
+  Operating, Telemetry, Data and Security, plus Listening and Recovery. Each lists what exists and
+  what's missing.
+- **P2, defects and verification:** bugs, CI, tests, and missing operations found in use.
+- **P3, architecture:** scaling, performance, security hardening and design decisions.
+- **P4, prototypes and quality of life.**
+
+A bug in a P1 surface gets P1 urgency, and so does anything touching audio playback and loopback,
+the critical path (confirmed by the user on 2026-10-12). Items that mix a defect with a missing
+capability are split.
+
+**Why:** the backlog had been ordered by what the last session ran into. Defining the core surfaces
+first shows which basic operations are still missing (for example, setting routing, moving
+devices, reading CPU load, storing per-set data) before quality-of-life features are built on top.
+
+**Evidence:** the surface gaps were checked against Live 12.4.6 (`docs/api-notes.md`, "Telemetry and
+per-set data").
+
+## D25. Friction becomes the cheapest deterministic level, not a new tool (2026-10-12)
+
+**Decision:** New capabilities come from friction seen in real use: scripts, `live_api` calls,
+fan-out, retries and repeated sequences. Each one is promoted to the cheapest level that removes it:
+a hint, a parameter, a recipe, a coded action, a workflow prompt, or, as a last resort, a new tool.
+Agents report friction (see `AGENTS.md`). The method is in `docs/capabilities.md`.
+
+**Why:**
+- Agent steps cost tokens and can go wrong, so fixed sequences belong in tested server code.
+- Every tool schema costs context on every turn, and the budget is 40. Actions behind an existing
+  entry point grow capabilities without growing the tool list.
+- Server-side actions work in every MCP client, unlike Claude-only skills.
+
+**Open:** the action layer's entry point and recipe format (see `TODO.md`, P3).
+
+## D26. AGENTS.md is the source; CLAUDE.md imports it, and a test checks drift (2026-10-12)
+
+**Decision:** Shared agent rules live only in `AGENTS.md`. `CLAUDE.md` starts with `@AGENTS.md`
+(Claude Code inlines the file) and adds only Claude Code specifics. `tests/test_agent_docs.py`, run
+in CI, fails when:
+- the import is missing or isn't the first line;
+- `CLAUDE.md` repeats a section heading or a sentence of 8 or more words from `AGENTS.md`;
+- the prompt names in `CLAUDE.md` differ from the server's prompts;
+- the tool budget line in `AGENTS.md` differs from the real count or from `TOOL_BUDGET`, which now
+  lives in `app.py`;
+- another client's instruction file exists without pointing to `AGENTS.md`.
+
+**Why:** an import keeps the shared rules in sync by construction, so there's nothing to copy.
+Drift can still come from a removed import, copied rules that later diverge, and counts and names
+going stale. A test catches all of these on every push. A generator script or a pre-commit hook would
+add a step that's easy to skip.
+
+**Evidence:** removing the import, appending a rule from `AGENTS.md`, and dropping a prompt name from
+`CLAUDE.md` each made exactly one of the new tests fail.
+
+## D27. New capabilities are planned through a question protocol (2026-10-12)
+
+**Decision:** Before building a tool, a parameter or an action, the agent follows
+`docs/api-protocol.md`:
+1. It researches what exists and what Live exposes.
+2. It asks the user only the questions the conventions don't settle, in rounds (intent and scope,
+   parameters, behavior and safety, placement).
+3. It shows a spec and waits for approval.
+4. It builds from the spec, tests first.
+
+The conventions and the CRUD contracts are written down in the same file. The spec lives in the
+`TODO.md` entry and the PR; after the build, the docstring and the tests are its home.
+
+**Why:** capabilities that are built ad hoc drift in naming, types, return shapes and safety, and
+a deterministic interface needs its decisions made up front. Writing the conventions down means the
+user is only asked about real choices. Mixed types are an example: `solo="only"` was rejected
+because a `bool | str` parameter can't be expressed for every client.
+
+## D28. Per-set data: an ID in the set, JSON in `agent/` (2026-10-12)
+
+**Decision:**
+- A stable set ID is stored in the Live Set with `Song.set_data`.
+- Everything else (snapshots, rules, preferences, provenance, descriptors) is versioned JSON under
+  `agent/projects/<set id>/`.
+- How agents reach this data (a new `project_data` tool or not) is still being investigated
+  (`TODO.md`, P3).
+
+**Why:**
+- An ID inside the set survives renaming and moving the `.als`, which a folder keyed by the set name
+  or path doesn't.
+- JSON files stay readable and diffable, and the set file doesn't grow.
+
+## D29. Live's behavior and the agent layer are kept apart (2026-10-12)
+
+**Decision:**
+- A parameter that sets one of Live's features behaves as the feature does in Live.
+- Extra behavior (for example, soloing several tracks at once) is a separate, explicitly named
+  parameter or action of AbletonMCP's own, off by default.
+- A capability never changes what an existing parameter does.
+
+The rule is in `docs/api-protocol.md`, section 1.
+
+**Why:**
+- The user should be able to predict a tool from knowing Live, and agents from knowing the tool.
+- Mixing extensions into Live's own features hides which behavior comes from where.
+
+For several targets, the agent layer prefers explicit, list-based actions that state the end result
+(`solo_tracks(tracks=[…])`) over flags that depend on the current state. The user chose this for
+being explicit, easy to test and debug, and easy to maintain.
+
+**Evidence:** the raw API already differs from Live in places. `Track.solo` is additive through the
+API but exclusive in Live with Exclusive Solo on (`docs/api-notes.md`). Such differences are
+recorded and settled per feature.
+
+## D30. Find and test hidden Live behavior before specifying a capability (2026-10-12)
+
+**Decision:**
+- Every capability's research step lists and tests its hidden behavior. The sources are
+  preferences, changes to other objects, hierarchy, timing, modifier variants, defaults, selection,
+  undo and stored state.
+- Per item, the Live layer reproduces it, or leaves it out with a note in `docs/api-notes.md`
+  ("API vs. Live").
+- Existing parameters get the same audit (`TODO.md`, P2).
+
+The checklist is in `docs/api-protocol.md`, section 1.
+
+**Why:** Live's API sets bare properties, while doing the same thing in Live applies preferences
+and side effects. A tool that wraps the property drifts from Live unnoticed, which breaks D29's
+promise that the Live layer behaves like Live. Solo was the case that showed this; Exclusive Arm and
+launch quantization are likely to follow the same pattern.

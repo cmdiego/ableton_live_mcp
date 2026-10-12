@@ -59,6 +59,9 @@ PARAM_DOCS = {
     "position_beats": "Song position in beats (quarter notes; a 4/4 bar is 4 beats).",
 }
 
+# Copilot caps at 128 tools across all servers; some clients degrade past ~40.
+TOOL_BUDGET = 40
+
 mcp = MCPServer("ableton", instructions=INSTRUCTIONS)
 
 

@@ -54,6 +54,14 @@ compatibility tests.
 
 ## Adding or changing tools
 
+- Plan a new capability (a tool, a parameter or an action) with
+  [docs/api-protocol.md](docs/api-protocol.md):
+  1. research what exists;
+  2. ask the user the open questions, in rounds;
+  3. show the spec;
+  4. build only after the user approves it.
+
+  Don't skip the questions unless the user says so.
 - Register with `@tool()` from `src/ableton_mcp/app.py`, never `mcp.tool()` directly. It rewrites
   schemas to a portable subset and turns `ValueError` into readable errors.
 - Declare safety: `@tool(read_only=True)` for reads, `@tool(destructive=True)` for anything that
@@ -79,6 +87,19 @@ compatibility tests.
   - playback starts at `song.start_time`, not the playhead;
   - unknown scale names silently become Major;
   - a recording's `.asd` file changes how Live plays it.
+
+## Report friction
+
+At the end of a task in a user's set, say whether it needed any of these:
+- a throwaway script;
+- raw `live_api` calls;
+- many calls for one request;
+- a retry after an error;
+- a sequence you've run before.
+
+If it did, add a candidate to "Capability candidates" in `TODO.md`: the signal, a one-line example
+and a suggested level. [docs/capabilities.md](docs/capabilities.md) explains the levels; prefer
+L0–L3 over a new tool.
 
 ## Two kinds of TODOs: the tool vs. the user's songs
 
@@ -108,7 +129,13 @@ Keep them apart. Before writing a task down, ask: would it still matter in a dif
   - `docs/decisions.md`: why
   - `docs/api-notes.md`: Live API facts
   - `docs/clients.md`: client setup and tool rules
+  - `docs/capabilities.md`: how friction becomes new actions
+  - `docs/api-protocol.md`: interface conventions and how a new capability is specified
   - `TODO.md`: open tasks and investigations for the tool (song tasks: see above)
 - Record new design decisions in `docs/decisions.md` (context, decision, evidence).
+- Agent instruction files: `AGENTS.md` is the only home for shared rules. `CLAUDE.md` starts with
+  `@AGENTS.md` and adds only Claude Code specifics. Another client's file (e.g. `GEMINI.md`) points
+  to `AGENTS.md` instead of copying it. `tests/test_agent_docs.py` checks this, along with the
+  prompt names and tool count both files state.
 - No dated handoff files: open tasks live in `TODO.md` (tool) or `agent/projects/<set name>/TODO.md`
   (song); remove an item once its outcome is recorded.
