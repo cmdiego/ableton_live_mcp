@@ -2,8 +2,8 @@
 
 ## Claude Code specifics
 
-- `.mcp.json` registers this repo's server as `ableton` for Claude Code sessions opened here. After
-  changing `src/`, reconnect the server (or start a new session) so it runs the new code.
+- Register the server with `claude mcp add` (see docs/clients.md). After changing `src/`, reconnect
+  the server (or start a new session) so it runs the new code.
 - The workflow prompts appear as `/mcp__ableton__organize_session`, `…write_part`, `…mix_check`,
   `…arrangement_review` and `…master_track`.
 - When planning a capability (docs/api-protocol.md), ask each round's questions with the

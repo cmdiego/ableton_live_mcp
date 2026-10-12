@@ -27,7 +27,7 @@ It has three pieces:
    scripts/install_remote_script.sh
    ```
 3. Open **Ableton Live 12 Suite** (not Standard), then go to Settings → Link, Tempo & MIDI → Control Surface and choose **AbletonMCP** (Input/Output: None).
-4. Connect a client. Claude Code (`.mcp.json`) and OpenCode (`opencode.json`) pick up the repo's config; Codex, Claude Desktop, Copilot, Cursor and Gemini CLI are covered in [clients.md](clients.md).
+4. Connect a client: Claude Code, Claude Desktop, OpenCode, Codex, Copilot, Cursor and Gemini CLI are covered in [clients.md](clients.md).
 5. Optional: ask the assistant to install the analyzer, which runs `analyzer(action='install')`.
 
 **Everyday use**
@@ -90,7 +90,6 @@ It has three pieces:
 **Maintenance risks**
 - **SDK internals:** schema rewriting and `batch` use private internals of the MCP SDK 2.x (`_tool_manager`), so an SDK upgrade could break them. The version isn't pinned yet.
 - **Reloading the Live script:** changes to `surface.py`, `server.py` or `dispatcher.py` need the control surface toggled off and on; changes to `__init__.py` need a Live restart. `handlers.py` and `lom.py` hot-reload.
-- **Machine-specific configs:** `.mcp.json` and `opencode.json` contain an absolute local path; adjust it after cloning.
 - **Tool budget:** 35 of 40 used, and some clients cap the total number of tools (VS Code Copilot: 128 across all servers).
 
 ## Next steps (suggested priority)
