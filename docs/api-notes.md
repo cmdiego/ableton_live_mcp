@@ -91,8 +91,8 @@ Device-specific classes exposed in `Live`: `Eq8Device`, `CompressorDevice`, `Roa
 
 ## API vs. Live: hidden behavior
 
-Differences between setting something through the API and doing it in Live
-(`docs/api-protocol.md`, "Hidden behavior"). Add a row whenever a test finds one.
+Differences between setting something through the API and doing it in Live. Add a row whenever a
+test finds one.
 
 | Feature | In Live | Through the API | Probed |
 |---|---|---|---|

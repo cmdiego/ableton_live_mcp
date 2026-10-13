@@ -1,8 +1,26 @@
 # Changelog
 
 Notable changes per release. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
-versions follow [Semantic Versioning](https://semver.org/). How releases are made:
-[docs/releasing.md](docs/releasing.md).
+versions follow [Semantic Versioning](https://semver.org/).
+
+## [0.1.1] - 2026-10-12
+
+Smoke-tested on Live 12.4.6 Suite (macOS): 41 of 41 end-to-end checks passed.
+
+### Added
+- `docs/setup.md`: a setup checklist you can hand to your AI agent ("set up AbletonMCP by following
+  docs/setup.md"). It checks the prerequisites, installs everything, registers the server with your
+  client and verifies the connection.
+
+### Changed
+- The repository now contains only what you need to install and run the tool: the MCP server, the
+  Remote Script, the AbletonMCP Analyzer device, the setup and smoke-test scripts, and the user docs.
+  Development files (tests, internal docs, agent instructions) are no longer published.
+- The README now covers how the tool works, its limitations, getting started, usage, and how to
+  report issues and ask for features.
+- Contributions are issues only; pull requests aren't accepted any more (see `CONTRIBUTING.md`).
+- Client setup: `docs/clients.md` now covers Claude Code with `claude mcp add`. The repo no longer
+  ships Claude Code and OpenCode config files, which pointed at a path on the maintainer's machine.
 
 ## [0.1.0] - 2026-10-12
 

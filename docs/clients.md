@@ -14,18 +14,20 @@ uv --directory /path/to/ableton_live_mcp run ableton-mcp
 | Claude Desktop | Snippet below; protocol-tested | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | VS Code Copilot, Cursor, Gemini CLI | Snippets below; not installed here, untested | see below |
 
-"Protocol-tested" means `tests/test_client_compat.py` passes: initialize with protocol versions 2024-11-05, 2025-03-26 and 2025-06-18, list tools, call tools.
+"Protocol-tested" means the automated compatibility tests pass: initialize with protocol versions 2024-11-05, 2025-03-26 and 2025-06-18, list tools, call tools.
 
 ## Claude Code
 ```bash
 claude mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
 ```
+The workflow prompts appear as `/mcp__ableton__organize_session`, `…write_part`, `…mix_check`,
+`…arrangement_review` and `…master_track`.
 
 ## OpenCode
 ```bash
 opencode mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
-opencode reload
 ```
+Then run `opencode reload`.
 OpenCode calls MCP tools from its own code-execution tool. That works fine.
 
 ## Codex CLI
@@ -53,11 +55,3 @@ Approvals follow the tool annotations:
 ```json
 {"mcpServers": {"ableton": {"command": "uv", "args": ["--directory", "/path/to/ableton_live_mcp", "run", "ableton-mcp"]}}}
 ```
-
-## Rules for new tools (enforced by `tests/test_client_compat.py`)
-- **Register with `@tool()` from `app.py`.** It rewrites the schema to a portable subset: no `anyOf`/`null`/`$ref`/`title`, and `str | int` becomes `string`. Input is still validated against the Python signature, so integers still work.
-- **Declare safety.** Use `@tool(read_only=True)` for reads and `@tool(destructive=True)` for anything that deletes or overwrites. Clients use these hints to decide when to ask.
-- **Shared parameter names get shared docs.** `track`, `slot`, `scene`, `confirm`, `color`, … are documented once in `PARAM_DOCS`, because some clients never show the server instructions to the model.
-- **Tool budget: 40 tools in total (35 used after Phase 11).** VS Code Copilot caps at 128 across all servers, and models pick tools less reliably as lists grow. Prefer one tool with a `target`/`action` parameter over several near-duplicates.
-- **Descriptions ≤ 1024 chars, names match `^[a-zA-Z0-9_-]{1,64}$`** (OpenAI function rules).
-- **Raise `LiveError` (or `ValueError`) with an actionable message.** Other exceptions reach the client only as "Error executing tool".

@@ -13,7 +13,32 @@ permissions:
   contents: read
 
 jobs:
+  package:
+    # Runs in both repos; the public one doesn't ship the tests (D33).
+    name: Installs and starts (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install (fails if uv.lock is out of date with pyproject.toml)
+        run: uv sync --locked --no-dev
+      - name: The server loads and lists its tools
+        run: |
+          uv run --no-dev python - <<'PY'
+          import asyncio
+          from ableton_mcp.server import mcp
+          print("tools:", len(asyncio.run(mcp.list_tools())))
+          PY
+
   tests:
+    if: github.repository != 'cmdiego/ableton_live_mcp'
     name: Tests (Python ${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:

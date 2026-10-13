@@ -1,6 +1,6 @@
 [project]
 name = "ableton-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP server that lets Claude organize, compose, mix and master in Ableton Live 12"
 requires-python = ">=3.12"
 license = "Apache-2.0"

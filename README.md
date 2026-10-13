@@ -20,13 +20,13 @@ It has three pieces:
 
 | Piece | Where | Role |
 |---|---|---|
-| **AbletonMCP Remote Script** | [`remote_script/AbletonMCP/`](remote_script/AbletonMCP/), runs inside Live | A thin, generic bridge to Live's Object Model (about 10 ms per call) |
-| **MCP server** | [`src/ableton_mcp/`](src/ableton_mcp/) | 35 tools, 5 workflow prompts and 4 resources, plus all the music theory, audio analysis and mastering logic |
-| **AbletonMCP Analyzer** | [`m4l/`](m4l/), a Max for Live device on the master | Records Live's real output and provides a live meter, so the assistant can check its own work |
+| **AbletonMCP Remote Script** | `remote_script/AbletonMCP/`, runs inside Live | A thin, generic bridge to Live's Object Model (about 10 ms per call) |
+| **MCP server** | `src/ableton_mcp/` | 35 tools, 5 workflow prompts and 4 resources, plus all the music theory, audio analysis and mastering logic |
+| **AbletonMCP Analyzer** | `m4l/`, a Max for Live device on the master | Records Live's real output and provides a live meter, so the assistant can check its own work |
 
 Your AI client starts the MCP server; the server talks to the Remote Script, which Live loads as a
 control surface. Exports, reference tracks, captures and reports live in the [`agent/`](agent/README.md)
-working folder. More detail in [docs/architecture.md](docs/architecture.md).
+working folder.
 
 ## Limitations
 
@@ -40,16 +40,21 @@ working folder. More detail in [docs/architecture.md](docs/architecture.md).
   exports (captures are the substitute, and they run in real time), one instrument per track.
 - **Don't touch Live while it works** on locators, captures or batches: moving the playhead or stopping
   playback mid-operation can hit the wrong locator or corrupt a capture.
+- **One analyzer per set**, and it must stay last on the master, or captures miss the devices after it.
 - **Heuristics are judgments, not facts:** chord names, section labels and stem roles are educated
   guesses; mastering without a reference only fixes obvious outliers; bar math assumes one time
   signature and a constant tempo.
-- The full list, with workarounds, is in [docs/summary.md](docs/summary.md#things-to-watch-out-for)
-  and [docs/api-notes.md](docs/api-notes.md).
+- More Live API facts and quirks: [docs/api-notes.md](docs/api-notes.md).
 
 ## Getting started
 
 **Requirements:** Ableton Live 12 (Suite recommended), [uv](https://docs.astral.sh/uv/) (it installs
 Python 3.12+ for you), and an MCP client such as Claude Code or Claude Desktop.
+
+**Let your agent do it:** open this folder in your coding agent and ask it to *"set up AbletonMCP by
+following docs/setup.md"*. [docs/setup.md](docs/setup.md) is a checklist written for agents (and
+people): it checks the prerequisites, installs everything, registers the server with your client and
+verifies the connection. The same steps by hand:
 
 1. Clone the repo and install the dependencies:
    ```bash
@@ -63,11 +68,8 @@ Python 3.12+ for you), and an MCP client such as Claude Code or Claude Desktop.
    ```
 3. Restart Live, then go to **Settings → Link, Tempo & MIDI → Control Surface** and choose
    **AbletonMCP** (Input/Output: None). Live's status bar should say it's listening on port 9877.
-4. Connect your AI client. Every client launches the server with the same command:
-   ```
-   uv --directory /path/to/ableton_live_mcp run ableton-mcp
-   ```
-   For Claude Code:
+4. Register the server with your AI client. Every client launches it with the same command, using the
+   absolute path of your clone. For Claude Code:
    ```bash
    claude mcp add ableton -- uv --directory /path/to/ableton_live_mcp run ableton-mcp
    ```
@@ -105,12 +107,23 @@ Useful to know:
   (`plan_master(path='latest_capture')`) without manual exports. Captures play through your speakers.
 - **Everything else:** `live_api` gives raw access to the Live Object Model, without the other tools'
   safety checks.
+- **Tools:** 35 in total, grouped as set / compose / sound / mix / audio / arrangement. Your client lists
+  them with their descriptions and parameters, and the server's instructions summarize them for the
+  assistant.
 
-The full capability list, measured accuracy and tips are in [docs/summary.md](docs/summary.md).
+## Troubleshooting
+
+- Run `uv run python scripts/smoke.py` in a scratch set. It checks every part end to end and says which
+  one fails.
+- Live's log: `~/Library/Preferences/Ableton/Live <version>/Log.txt` (search for `AbletonMCP`).
+- Your client still runs old code after an update: restart its MCP server (or the client).
 
 ## Contribute
 
-Bug reports, feature ideas and pull requests are all welcome.
+This repository publishes tested releases; development happens elsewhere, so pull requests aren't
+accepted here. Bug reports and feature ideas are very welcome as
+[issues](https://github.com/cmdiego/ableton_live_mcp/issues), and good ideas are credited in the
+[changelog](CHANGELOG.md).
 
 ### Reporting an issue
 
@@ -121,48 +134,27 @@ Bug reports, feature ideas and pull requests are all welcome.
    - **What you asked or ran:** the prompt, or the tool call and its arguments if you have them;
    - **What happened vs. what you expected**, with the exact error message;
    - **Versions:** Live (e.g. 12.4.6, Suite or Standard), OS, MCP client, and this project's release
-     (see [CHANGELOG.md](CHANGELOG.md)) or commit;
-   - **Logs:** Live's `Log.txt` lines containing `AbletonMCP` (on macOS:
-     `~/Library/Preferences/Ableton/Live <version>/Log.txt`), and the output of
-     `uv run python scripts/smoke.py` if it fails;
+     (see [CHANGELOG.md](CHANGELOG.md));
+   - **Logs:** the `AbletonMCP` lines from Live's `Log.txt`, and the output of
+     `uv run python scripts/smoke.py` for setup problems;
    - **Steps to reproduce**, ideally on a small scratch set.
 3. Don't attach your songs, stems or anything private; describe the set instead (track count, devices
    involved).
 
 ### Asking for a new feature
 
-1. Check [TODO.md](TODO.md) and the open issues: it may already be planned.
+1. Check the open issues: it may already be requested. If so, add a 👍 and your use case.
 2. Open an issue titled "Feature: …" that describes:
    - **The problem:** what you're trying to do in Live and what gets in the way today;
    - **An example request** you'd like to be able to make ("sidechain every bass to the kick");
    - **What would count as done**, and anything you tried as a workaround.
-3. Describe the outcome rather than a specific tool. The server has a budget of 40 tools, so most
-   features land as a new action or parameter on an existing tool; new capabilities are planned with
-   [docs/api-protocol.md](docs/api-protocol.md) and [docs/capabilities.md](docs/capabilities.md).
-
-### Pull requests
-
-Open an issue before a large pull request so we can agree on the approach. Run `uv run pytest`
-(no Live needed: a fake Live in `tests/fake_live.py` drives the real Remote Script code) and, if you
-can, `scripts/smoke.py` against a real Live. Development rules for the Remote Script and for new tools
-are in [AGENTS.md](AGENTS.md) and apply to people too; how pull requests land and the one-time CLA are
-in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Docs
-
-- [docs/summary.md](docs/summary.md): capabilities, limits and next steps
-- [docs/architecture.md](docs/architecture.md): how it works
-- [docs/decisions.md](docs/decisions.md): why it's built this way
-- [docs/api-notes.md](docs/api-notes.md): Live API facts and quirks
-- [docs/clients.md](docs/clients.md): setting up MCP clients
-- [AGENTS.md](AGENTS.md): instructions for AI coding agents (and people) working on the repo
-- [CHANGELOG.md](CHANGELOG.md): what changed in each release; `main` always holds the latest release
+3. Describe the outcome rather than a specific tool. The server keeps its tool list small on purpose,
+   so most features land as a new action or option on an existing tool.
 
 ## License
 
-[Apache License 2.0](LICENSE). Contributions need a one-time CLA; see [CONTRIBUTING.md](CONTRIBUTING.md).
-Paid features, if any are ever offered, will ship as a separate add-on; nothing in this repo will move
-behind a paywall ([D31](docs/decisions.md)).
+[Apache License 2.0](LICENSE). Paid features, if any are ever offered, will ship as a separate add-on;
+nothing in this repo will move behind a paywall.
 
 Ableton, Live and Max for Live are trademarks of Ableton AG. This project is not affiliated with or
 endorsed by Ableton.
